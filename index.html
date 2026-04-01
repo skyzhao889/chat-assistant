@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>撩妹助手 💌</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --pink: #ff6b9d;
+    --pink-light: #ffd6e7;
+    --pink-dark: #e0457a;
+    --purple: #a855f7;
+    --purple-light: #f3e8ff;
+    --bg: #fff5f8;
+    --card: #ffffff;
+    --text: #2d2d2d;
+    --text-light: #888;
+    --border: #ffd6e7;
+    --shadow: 0 4px 20px rgba(255,107,157,0.15);
+  }
+
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* 顶部导航 */
+  .header {
+    background: linear-gradient(135deg, #ff6b9d, #a855f7);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 12px rgba(255,107,157,0.3);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-icon { font-size: 28px; }
+  .header h1 { color: white; font-size: 20px; font-weight: 700; }
+  .header p { color: rgba(255,255,255,0.8); font-size: 12px; margin-top: 2px; }
+
+  /* Tab 导航 */
+  .tabs {
+    display: flex;
+    background: white;
+    border-bottom: 2px solid var(--border);
+    overflow-x: auto;
+    position: sticky;
+    top: 72px;
+    z-index: 99;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 1;
+    min-width: 80px;
+    padding: 14px 8px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-light);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab.active {
+    color: var(--pink);
+    border-bottom-color: var(--pink);
+    font-weight: 600;
+  }
+  .tab:hover { background: var(--pink-light); }
+  .tab-icon { font-size: 18px; display: block; margin-bottom: 3px; }
+
+  /* 主内容区 */
+  .content { padding: 20px; max-width: 800px; margin: 0 auto; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* 卡片 */
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* 输入框 */
+  textarea, input[type="text"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  textarea:focus, input[type="text"]:focus {
+    border-color: var(--pink);
+    background: white;
+  }
+  textarea { min-height: 90px; }
+
+  /* 按钮 */
+  .btn {
+    padding: 11px 22px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white;
+    box-shadow: 0 4px 14px rgba(255,107,157,0.4);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(255,107,157,0.5);
+  }
+  .btn-secondary {
+    background: var(--pink-light);
+    color: var(--pink-dark);
+  }
+  .btn-secondary:hover { background: #ffc8de; }
+  .btn-sm { padding: 7px 14px; font-size: 12px; }
+  .btn:active { transform: scale(0.97); }
+
+  /* 标签选择器 */
+  .tag-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .tag {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: white;
+    color: var(--text-light);
+    transition: all 0.2s;
+  }
+  .tag.selected, .tag:hover {
+    background: var(--pink-light);
+    border-color: var(--pink);
+    color: var(--pink-dark);
+    font-weight: 600;
+  }
+
+  /* 结果区域 */
+  .result-box {
+    background: linear-gradient(135deg, var(--purple-light), var(--pink-light));
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 14px;
+    border-left: 4px solid var(--pink);
+    display: none;
+  }
+  .result-box.show { display: block; }
+  .result-item {
+    background: white;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .result-item:last-child { margin-bottom: 0; }
+  .result-item:hover {
+    border-color: var(--pink);
+    transform: translateX(3px);
+    box-shadow: 0 2px 10px rgba(255,107,157,0.15);
+  }
+  .result-item .copy-hint {
+    font-size: 11px;
+    color: var(--text-light);
+    margin-top: 6px;
+  }
+  .result-item.copied {
+    border-color: #4ade80;
+    background: #f0fdf4;
+  }
+  .result-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--pink);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .result-text { font-size: 14px; line-height: 1.6; }
+
+  /* 好感度分析 */
+  .meter-wrap { margin: 12px 0; }
+  .meter-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+  .meter-bar { height: 10px; background: #f0f0f0; border-radius: 5px; overflow: hidden; }
+  .meter-fill {
+    height: 100%;
+    border-radius: 5px;
+    background: linear-gradient(90deg, var(--pink), var(--purple));
+    transition: width 0.8s ease;
+    width: 0%;
+  }
+  .score-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  .score-hot { background: #fee2e2; color: #dc2626; }
+  .score-warm { background: #fef3c7; color: #d97706; }
+  .score-cool { background: #e0f2fe; color: #0284c7; }
+  .score-cold { background: #f1f5f9; color: #64748b; }
+
+  /* 话题库 */
+  .topic-category {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .topic-cat-header {
+    padding: 12px 16px;
+    background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .topic-cat-header:hover { filter: brightness(0.97); }
+  .topic-list { padding: 12px 16px; display: none; }
+  .topic-list.open { display: block; }
+  .topic-item {
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: var(--bg);
+    font-size: 13px;
+    line-height: 1.6;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+  }
+  .topic-item:hover {
+    border-color: var(--pink);
+    background: var(--pink-light);
+  }
+  .topic-item:last-child { margin-bottom: 0; }
+
+  /* 加载动画 */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 20px;
+    color: var(--text-light);
+  }
+  .loading.show { display: block; }
+  .loading-dots span {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--pink);
+    border-radius: 50%;
+    margin: 0 3px;
+    animation: bounce 1.2s infinite;
+  }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+  }
+
+  /* 对话记录 */
+  .chat-log {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 14px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+  .chat-bubble {
+    margin-bottom: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .chat-bubble.me { flex-direction: row-reverse; }
+  .bubble-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .bubble-avatar.her { background: #fce7f3; }
+  .bubble-avatar.me-av { background: #ede9fe; }
+  .bubble-text {
+    padding: 9px 13px;
+    border-radius: 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    max-width: 75%;
+  }
+  .chat-bubble.her .bubble-text { background: white; border: 1px solid var(--border); border-top-left-radius: 4px; }
+  .chat-bubble.me .bubble-text { background: linear-gradient(135deg, var(--pink), var(--purple)); color: white; border-top-right-radius: 4px; }
+
+  /* Toast 提示 */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    z-index: 9999;
+    transition: transform 0.3s;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* 响应式 */
+  @media (max-width: 480px) {
+    .content { padding: 12px; }
+    .card { padding: 14px; }
+  }
+
+  /* ===== 会员相关样式 ===== */
+  .vip-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .vip-badge.free {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.4);
+  }
+  .vip-badge.month {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    color: white;
+    box-shadow: 0 2px 8px rgba(245,158,11,0.4);
+  }
+  .vip-badge.year {
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: white;
+    box-shadow: 0 2px 8px rgba(124,58,237,0.5);
+  }
+
+  /* 每日额度条 */
+  .quota-bar {
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.9);
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .quota-dots { display: flex; gap: 3px; }
+  .quota-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.35);
+  }
+  .quota-dot.used { background: rgba(255,255,255,0.9); }
+
+  /* 会员中心 */
+  .vip-hero {
+    background: linear-gradient(135deg, #7c3aed, #a855f7, #ec4899);
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+    color: white;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .vip-hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+  .vip-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; left: -30px;
+    width: 90px; height: 90px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+  .vip-hero h2 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+  .vip-hero p { font-size: 13px; opacity: 0.85; }
+  .vip-status-text { font-size: 15px; margin-top: 12px; font-weight: 600; }
+
+  /* 套餐卡片 */
+  .plan-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  @media (max-width: 480px) { .plan-grid { grid-template-columns: 1fr; } }
+  .plan-card {
+    background: white;
+    border-radius: 14px;
+    padding: 16px 12px;
+    text-align: center;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .plan-card:hover { border-color: var(--pink); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .plan-card.recommended { border-color: #f59e0b; box-shadow: 0 4px 16px rgba(245,158,11,0.2); }
+  .plan-card.popular-tag::before {
+    content: '最划算';
+    position: absolute;
+    top: -10px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    color: white; font-size: 10px; font-weight: 700;
+    padding: 2px 10px; border-radius: 10px;
+  }
+  .plan-icon { font-size: 28px; margin-bottom: 6px; }
+  .plan-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .plan-price { font-size: 24px; font-weight: 800; color: var(--pink); }
+  .plan-price span { font-size: 13px; font-weight: 400; color: var(--text-light); }
+  .plan-features { margin-top: 10px; font-size: 11px; color: var(--text-light); line-height: 1.8; text-align: left; }
+  .plan-features li { list-style: none; padding: 0; }
+  .plan-features li::before { content: '✓ '; color: #16a34a; font-weight: 700; }
+  .plan-btn { margin-top: 12px; width: 100%; }
+
+  /* 支付弹窗 */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 20px;
+    padding: 28px 24px;
+    width: 90%;
+    max-width: 360px;
+    position: relative;
+    animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn {
+    from { transform: scale(0.88); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .modal-close {
+    position: absolute; top: 14px; right: 16px;
+    font-size: 20px; cursor: pointer; color: #999;
+    background: none; border: none;
+  }
+  .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .modal-sub { font-size: 13px; color: var(--text-light); margin-bottom: 18px; }
+  .qr-box {
+    background: linear-gradient(135deg, #f3e8ff, #fce7f3);
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .qr-placeholder {
+    width: 160px; height: 160px;
+    background: white;
+    border-radius: 10px;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #999;
+    border: 1px dashed #ddd;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .qr-tips { font-size: 12px; color: var(--text-light); line-height: 1.7; }
+  .pay-amount { font-size: 28px; font-weight: 800; color: var(--pink); text-align: center; margin: 10px 0 4px; }
+  .pay-note { font-size: 12px; color: var(--text-light); text-align: center; margin-bottom: 14px; }
+
+  /* 激活码区 */
+  .activate-box {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .activate-row { display: flex; gap: 8px; margin-top: 10px; }
+
+  /* 功能对比表 */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .compare-table th { padding: 8px 6px; background: var(--bg); font-weight: 700; text-align: center; }
+  .compare-table td { padding: 8px 6px; border-top: 1px solid var(--border); text-align: center; }
+  .compare-table td:first-child { text-align: left; font-weight: 500; }
+  .check-yes { color: #16a34a; font-weight: 700; }
+  .check-no  { color: #ccc; }
+
+  /* 已开通会员状态 */
+  .vip-active-card {
+    background: linear-gradient(135deg, #7c3aed, #ec4899);
+    border-radius: 16px;
+    padding: 20px;
+    color: white;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .vip-active-icon { font-size: 40px; }
+  .vip-active-info h3 { font-size: 18px; font-weight: 800; }
+  .vip-active-info p { font-size: 12px; opacity: 0.85; margin-top: 3px; }
+  .vip-active-expire { font-size: 11px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; margin-top: 6px; display: inline-block; }
+
+  /* 限制提示遮罩 */
+  .limit-hint {
+    background: linear-gradient(135deg, #fff0f0, #fce7f3);
+    border: 1.5px solid var(--pink);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: center;
+    margin-top: 12px;
+    display: none;
+  }
+  .limit-hint.show { display: block; }
+  .limit-hint p { font-size: 13px; color: #444; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">💌</div>
+  <div>
+    <h1>撩妹助手</h1>
+    <p>陌陌/探探 · 豆包AI驱动 ✨</p>
+  </div>
+  <div id="header-vip" onclick="switchTab('vip')" style="margin-left:auto;cursor:pointer"></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('opener')">
+    <span class="tab-icon">🎯</span>开场白
+  </div>
+  <div class="tab" onclick="switchTab('reply')">
+    <span class="tab-icon">💬</span>回复推荐
+  </div>
+  <div class="tab" onclick="switchTab('analyze')">
+    <span class="tab-icon">🔍</span>态度分析
+  </div>
+  <div class="tab" onclick="switchTab('topics')">
+    <span class="tab-icon">📚</span>话题库
+  </div>
+  <div class="tab" onclick="switchTab('imggen')">
+    <span class="tab-icon">🖼️</span>生成照片
+  </div>
+  <div class="tab" onclick="switchTab('vip')" id="tab-vip">
+    <span class="tab-icon">👑</span>会员
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ===== 开场白面板 ===== -->
+  <div class="panel active" id="panel-opener">
+    <div class="card">
+      <div class="card-title">🎯 对方的资料/动态</div>
+      <textarea id="opener-profile" placeholder="描述她的个人资料或动态，比如：
+· 职业：护士，喜欢旅游
+· 动态：发了一张在咖啡馆看书的照片
+· 签名："人间值得"
+· 爱好：养猫、追剧"></textarea>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎨 开场白风格</div>
+      <div class="tag-group" id="opener-style">
+        <div class="tag selected" data-val="幽默轻松">😄 幽默轻松</div>
+        <div class="tag" data-val="温柔体贴">🌸 温柔体贴</div>
+        <div class="tag" data-val="直接大胆">🔥 直接大胆</div>
+        <div class="tag" data-val="共鸣型">💫 引发共鸣</div>
+        <div class="tag" data-val="好奇提问型">🤔 好奇提问</div>
+      </div>
+      <button class="btn btn-primary" onclick="genOpener()">✨ 生成开场白</button>
+    </div>
+
+    <div class="loading" id="opener-loading">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <div style="margin-top:8px;font-size:13px;">豆包AI生成中...</div>
+    </div>
+
+    <div class="limit-hint" id="opener-limit"></div>
+    <div class="result-box" id="opener-result"></div>
+  </div>
+
+  <!-- ===== 回复推荐面板 ===== -->
+  <div class="panel" id="panel-reply">
+    <div class="card">
+      <div class="card-title">💬 对话记录（可选，填写更准确）</div>
+      <div class="chat-log" id="chat-log">
+        <div style="text-align:center;color:#ccc;font-size:13px;padding:20px 0">暂无记录，直接填她说的话也行</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input type="text" id="add-her" placeholder="她说的话..." style="flex:1">
+        <button class="btn btn-secondary btn-sm" onclick="addMsg('her')">她说</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="add-me" placeholder="我说的话..." style="flex:1">
+        <button class="btn btn-secondary btn-sm" onclick="addMsg('me')">我说</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎯 她最新的一句话</div>
+      <textarea id="reply-input" placeholder="粘贴她最新说的话..."></textarea>
+      <div class="tag-group" id="reply-style" style="margin-top:12px">
+        <div class="tag selected" data-val="幽默">😄 幽默</div>
+        <div class="tag" data-val="温柔">🌸 温柔</div>
+        <div class="tag" data-val="撩人">🔥 撩人</div>
+        <div class="tag" data-val="走心">💙 走心</div>
+        <div class="tag" data-val="反差">⚡ 反差</div>
+      </div>
+      <button class="btn btn-primary" onclick="genReply()">✨ 推荐回复</button>
+    </div>
+
+    <div class="loading" id="reply-loading">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <div style="margin-top:8px;font-size:13px;">豆包AI分析中...</div>
+    </div>
+
+    <div class="limit-hint" id="reply-limit"></div>
+    <div class="result-box" id="reply-result"></div>
+  </div>
+
+  <!-- ===== 态度分析面板 ===== -->
+  <div class="panel" id="panel-analyze">
+    <div class="card">
+      <div class="card-title">🔍 粘贴你们的聊天记录</div>
+      <textarea id="analyze-input" style="min-height:150px" placeholder="把你们最近的聊天内容粘贴进来，越完整越准确。
+
+格式不限，比如：
+我：你今天做什么
+她：上班啊，好累
+我：工作狗，要不要下班陪你吃饭
+她：哈哈哈 不了吧"></textarea>
+      <div style="margin-top:12px">
+        <button class="btn btn-primary" onclick="analyzeChat()">🔍 分析她的态度</button>
+      </div>
+    </div>
+
+    <div class="loading" id="analyze-loading">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <div style="margin-top:8px;font-size:13px;">豆包AI深度分析中...</div>
+    </div>
+
+    <div class="limit-hint" id="analyze-limit"></div>
+    <div class="result-box" id="analyze-result"></div>
+  </div>
+
+  <!-- ===== 话题库面板 ===== -->
+  <div class="panel" id="panel-topics">
+    <div class="card" style="padding:14px 16px">
+      <div class="card-title">📚 分场景话题库</div>
+      <p style="font-size:13px;color:var(--text-light);margin-bottom:14px">点击话题可复制，展开分类查看全部</p>
+    </div>
+
+    <div id="topic-list"></div>
+  </div>
+
+  <!-- ===== 图片生成面板 ===== -->
+  <div class="panel" id="panel-imggen">
+    <div class="card">
+      <div class="card-title">🖼️ 人物设定</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div>
+          <div style="font-size:12px;color:var(--text-light);margin-bottom:5px">性别</div>
+          <div class="tag-group" id="img-gender">
+            <div class="tag selected" data-val="男生">👦 男生</div>
+            <div class="tag" data-val="女生">👧 女生</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--text-light);margin-bottom:5px">年龄</div>
+          <div class="tag-group" id="img-age">
+            <div class="tag" data-val="20岁左右">20岁</div>
+            <div class="tag selected" data-val="25-30岁">25-30岁</div>
+            <div class="tag" data-val="30-35岁">30-35岁</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div>
+          <div style="font-size:12px;color:var(--text-light);margin-bottom:5px">身高体重</div>
+          <input type="text" id="img-body" placeholder="如：178cm，70kg" value="178cm，70kg">
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--text-light);margin-bottom:5px">穿搭风格</div>
+          <div class="tag-group" id="img-style">
+            <div class="tag selected" data-val="休闲">👕 休闲</div>
+            <div class="tag" data-val="商务">👔 商务</div>
+            <div class="tag" data-val="运动">🏃 运动</div>
+            <div class="tag" data-val="潮流">✨ 潮流</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🌄 场景设定</div>
+      <div class="tag-group" id="img-scene">
+        <div class="tag selected" data-val="户外公园">🌳 公园</div>
+        <div class="tag" data-val="城市街道">🏙️ 街道</div>
+        <div class="tag" data-val="咖啡馆门口">☕ 咖啡馆</div>
+        <div class="tag" data-val="海边">🌊 海边</div>
+        <div class="tag" data-val="山野户外">⛰️ 山野</div>
+        <div class="tag" data-val="夜晚城市">🌙 夜晚</div>
+      </div>
+      <div style="margin-top:10px">
+        <div style="font-size:12px;color:var(--text-light);margin-bottom:5px">补充描述（可选）</div>
+        <input type="text" id="img-extra" placeholder="如：微笑，自然光，侧身拍">
+      </div>
+      <div style="margin-top:14px">
+        <button class="btn btn-primary" onclick="genImage()" id="img-btn">🎨 生成照片</button>
+      </div>
+    </div>
+
+    <div class="loading" id="img-loading">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <div style="margin-top:8px;font-size:13px;">豆包AI生成中，约需15-30秒...</div>
+    </div>
+
+    <div class="limit-hint" id="img-limit"></div>
+    <div class="result-box" id="img-result"></div>
+  </div>
+
+  <!-- ===== 会员中心面板 ===== -->
+  <div class="panel" id="panel-vip">
+
+    <!-- 当前状态卡 -->
+    <div id="vip-status-area"></div>
+
+    <!-- 套餐选择（非会员时显示） -->
+    <div id="vip-plans-area">
+      <div class="card" style="padding:14px 16px 10px">
+        <div class="card-title">👑 选择会员套餐</div>
+      </div>
+      <div class="plan-grid">
+        <!-- 免费 -->
+        <div class="plan-card">
+          <div class="plan-icon">🆓</div>
+          <div class="plan-name">免费版</div>
+          <div class="plan-price">¥0<span>/永久</span></div>
+          <ul class="plan-features" style="margin-top:8px">
+            <li>每天3次AI</li>
+            <li>基础话题库</li>
+            <li>有限图片生成</li>
+          </ul>
+          <button class="btn btn-secondary btn-sm plan-btn" disabled>当前套餐</button>
+        </div>
+        <!-- 月会员 -->
+        <div class="plan-card recommended">
+          <div class="plan-icon">🌟</div>
+          <div class="plan-name">月会员</div>
+          <div class="plan-price">¥29.9<span>/月</span></div>
+          <ul class="plan-features" style="margin-top:8px">
+            <li>AI无限使用</li>
+            <li>图片无限生成</li>
+            <li>高级话术解锁</li>
+          </ul>
+          <button class="btn btn-primary btn-sm plan-btn" onclick="openPayModal('month')">立即开通</button>
+        </div>
+        <!-- 年会员 -->
+        <div class="plan-card popular-tag">
+          <div class="plan-icon">💎</div>
+          <div class="plan-name">年会员</div>
+          <div class="plan-price">¥99<span>/年</span></div>
+          <ul class="plan-features" style="margin-top:8px">
+            <li>全功能无限制</li>
+            <li>专属精品话术</li>
+            <li>优先新功能</li>
+          </ul>
+          <button class="btn btn-primary btn-sm plan-btn" style="background:linear-gradient(135deg,#7c3aed,#a855f7)" onclick="openPayModal('year')">立即开通</button>
+        </div>
+      </div>
+
+      <!-- 功能对比 -->
+      <div class="card">
+        <div class="card-title">📊 功能对比</div>
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>功能</th>
+              <th>免费</th>
+              <th>月会员</th>
+              <th>年会员</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>开场白生成</td>
+              <td>3次/天</td>
+              <td class="check-yes">无限</td>
+              <td class="check-yes">无限</td>
+            </tr>
+            <tr>
+              <td>回复推荐</td>
+              <td>3次/天</td>
+              <td class="check-yes">无限</td>
+              <td class="check-yes">无限</td>
+            </tr>
+            <tr>
+              <td>态度分析</td>
+              <td>3次/天</td>
+              <td class="check-yes">无限</td>
+              <td class="check-yes">无限</td>
+            </tr>
+            <tr>
+              <td>图片生成</td>
+              <td>1次/天</td>
+              <td class="check-yes">无限</td>
+              <td class="check-yes">无限</td>
+            </tr>
+            <tr>
+              <td>话题库</td>
+              <td class="check-yes">基础版</td>
+              <td class="check-yes">完整版</td>
+              <td class="check-yes">专属版</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 激活码兑换 -->
+    <div class="card activate-box">
+      <div class="card-title">🔑 激活码兑换</div>
+      <p style="font-size:13px;color:var(--text-light)">已有激活码？直接输入即可兑换会员</p>
+      <div class="activate-row">
+        <input type="text" id="activate-input" placeholder="请输入激活码" style="flex:1;text-transform:uppercase">
+        <button class="btn btn-primary" onclick="activateCode()" style="flex-shrink:0">兑换</button>
+      </div>
+      <div id="activate-msg" style="font-size:12px;margin-top:8px;display:none"></div>
+    </div>
+
+  </div>
+
+</div><!-- end .content -->
+
+<!-- ===== 支付弹窗 ===== -->
+<div class="modal-overlay" id="pay-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closePayModal()">✕</button>
+    <div class="modal-title" id="pay-modal-title">开通月会员</div>
+    <div class="modal-sub" id="pay-modal-sub">扫码支付，支付成功后联系客服发送激活码</div>
+
+    <div class="pay-amount" id="pay-modal-amount">¥29.9</div>
+    <div class="pay-note">微信/支付宝均可扫码支付</div>
+
+    <div class="qr-box">
+      <!-- ⬇️ 收款码图片，与html同目录的qrcode.png -->
+      <img id="qr-img" src="qrcode.png" alt="收款二维码"
+        style="width:160px;height:160px;border-radius:10px;object-fit:cover;display:block;margin:0 auto 10px;background:#f5f5f5"
+        onerror="this.style.display='none';document.getElementById('qr-fallback').style.display='flex'"
+      >
+      <!-- 图片加载失败时显示的占位 -->
+      <div id="qr-fallback" class="qr-placeholder" style="display:none">
+        <span style="font-size:32px">📱</span>
+        <span>请替换收款码图片</span>
+      </div>
+      <div class="qr-tips">
+        1. 截图保存二维码<br>
+        2. 微信/支付宝扫码付款<br>
+        3. 备注手机号或用户名<br>
+        4. 付款后将收到激活码
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary" style="flex:1" onclick="closePayModal()">取消</button>
+      <button class="btn btn-primary" style="flex:1" onclick="closePayModal();switchTab('vip');document.getElementById('activate-input').focus()">已付款 → 输入激活码</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== 豆包 API 配置 =====
+const DOUBAO_API_KEY = '2c7f6056-18c6-48a8-acc1-b7c689de651a';
+const DOUBAO_ENDPOINT = 'ep-20260327152443-fzqc7';       // 文字对话模型
+const DOUBAO_IMG_ENDPOINT = 'ep-20260327141400-szl8q';   // 图片生成模型
+const DOUBAO_URL = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
+const DOUBAO_IMG_URL = 'https://ark.cn-beijing.volces.com/api/v3/images/generations';
+
+// ===== 会员系统 =====
+// 激活码规则（可自行扩展）：前缀 MONTH- = 月会员 30天，YEAR- = 年会员 365天
+const VIP_CODES = {
+  'MONTH-DEMO2026': 30,
+  'MONTH-VIP88888': 30,
+  'YEAR-SUPER2026': 365,
+  'YEAR-GOLDEN999': 365,
+};
+
+// 免费额度
+const FREE_LIMITS = { ai: 3, img: 1 };
+
+function getVipInfo() {
+  const raw = localStorage.getItem('vip_info');
+  if (!raw) return null;
+  try {
+    const info = JSON.parse(raw);
+    if (Date.now() > info.expireAt) {
+      localStorage.removeItem('vip_info');
+      return null;
+    }
+    return info;
+  } catch { return null; }
+}
+
+function getTodayUsage() {
+  const today = new Date().toISOString().slice(0, 10);
+  const raw = localStorage.getItem('usage_' + today);
+  try { return JSON.parse(raw) || { ai: 0, img: 0 }; }
+  catch { return { ai: 0, img: 0 }; }
+}
+
+function addUsage(type) {
+  const today = new Date().toISOString().slice(0, 10);
+  const key = 'usage_' + today;
+  const usage = getTodayUsage();
+  usage[type] = (usage[type] || 0) + 1;
+  localStorage.setItem(key, JSON.stringify(usage));
+}
+
+function canUse(type) {
+  if (getVipInfo()) return true; // 会员无限制
+  const usage = getTodayUsage();
+  const limit = type === 'img' ? FREE_LIMITS.img : FREE_LIMITS.ai;
+  return (usage[type] || 0) < limit;
+}
+
+function getVipLevel() {
+  const info = getVipInfo();
+  if (!info) return 'free';
+  return info.type; // 'month' | 'year'
+}
+
+// 更新Header会员徽章
+function updateHeaderVip() {
+  const el = document.getElementById('header-vip');
+  const info = getVipInfo();
+  if (!info) {
+    const usage = getTodayUsage();
+    const remain = Math.max(0, FREE_LIMITS.ai - (usage.ai || 0));
+    const dots = Array(FREE_LIMITS.ai).fill(0).map((_, i) =>
+      `<div class="quota-dot ${i < remain ? 'used' : ''}"></div>`
+    ).join('');
+    el.innerHTML = `<div class="quota-bar"><span>今日剩余</span><div class="quota-dots">${dots}</div><span>${remain}次</span></div>`;
+  } else if (info.type === 'month') {
+    el.innerHTML = `<div class="vip-badge month">🌟 月会员</div>`;
+  } else {
+    el.innerHTML = `<div class="vip-badge year">💎 年会员</div>`;
+  }
+  // 更新Tab高亮
+  const tabVip = document.getElementById('tab-vip');
+  if (tabVip) {
+    const lvl = getVipLevel();
+    tabVip.style.color = lvl === 'year' ? '#7c3aed' : lvl === 'month' ? '#f59e0b' : '';
+  }
+}
+
+// 渲染会员中心面板
+function renderVipPanel() {
+  const info = getVipInfo();
+  const statusArea = document.getElementById('vip-status-area');
+  const plansArea  = document.getElementById('vip-plans-area');
+
+  if (info) {
+    const expire = new Date(info.expireAt).toLocaleDateString('zh-CN');
+    const icon = info.type === 'year' ? '💎' : '🌟';
+    const name = info.type === 'year' ? '年会员' : '月会员';
+    statusArea.innerHTML = `
+      <div class="vip-active-card">
+        <div class="vip-active-icon">${icon}</div>
+        <div class="vip-active-info">
+          <h3>${name} · 已开通</h3>
+          <p>AI无限使用 · 图片无限生成 · 全功能解锁</p>
+          <span class="vip-active-expire">到期时间：${expire}</span>
+        </div>
+      </div>
+    `;
+    // 会员已开通，只显示"续费"按钮，隐藏套餐区
+    plansArea.style.display = 'none';
+    // 续费入口
+    if (!document.getElementById('renew-card')) {
+      const rc = document.createElement('div');
+      rc.id = 'renew-card';
+      rc.className = 'card';
+      rc.innerHTML = `
+        <div class="card-title">🔄 续费套餐</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="openPayModal('month')">续费月会员 ¥29.9</button>
+          <button class="btn btn-primary" style="background:linear-gradient(135deg,#7c3aed,#a855f7)" onclick="openPayModal('year')">续费年会员 ¥99</button>
+        </div>`;
+      statusArea.after(rc);
+    }
+  } else {
+    statusArea.innerHTML = `
+      <div class="vip-hero">
+        <div style="font-size:40px">👑</div>
+        <h2>开通会员</h2>
+        <p>解锁AI无限次 · 图片无限生成 · 全功能畅用</p>
+        <div class="vip-status-text">当前：免费版 · 每天3次AI机会</div>
+      </div>`;
+    plansArea.style.display = 'block';
+    const rc = document.getElementById('renew-card');
+    if (rc) rc.remove();
+  }
+}
+
+// 激活码兑换
+function activateCode() {
+  const code = document.getElementById('activate-input').value.trim().toUpperCase();
+  const msgEl = document.getElementById('activate-msg');
+  msgEl.style.display = 'block';
+
+  if (!code) {
+    msgEl.style.color = '#dc2626';
+    msgEl.textContent = '⚠️ 请输入激活码';
+    return;
+  }
+
+  // 检查是否已使用过
+  const usedCodes = JSON.parse(localStorage.getItem('used_codes') || '[]');
+  if (usedCodes.includes(code)) {
+    msgEl.style.color = '#dc2626';
+    msgEl.textContent = '⚠️ 该激活码已被使用过';
+    return;
+  }
+
+  const days = VIP_CODES[code];
+  if (!days) {
+    msgEl.style.color = '#dc2626';
+    msgEl.textContent = '⚠️ 激活码无效，请检查是否填写正确';
+    return;
+  }
+
+  // 计算到期时间（叠加已有会员时间）
+  const existing = getVipInfo();
+  const base = existing ? existing.expireAt : Date.now();
+  const expireAt = base + days * 86400000;
+  const type = days >= 365 ? 'year' : 'month';
+
+  localStorage.setItem('vip_info', JSON.stringify({ type, expireAt, activatedAt: Date.now() }));
+  usedCodes.push(code);
+  localStorage.setItem('used_codes', JSON.stringify(usedCodes));
+
+  msgEl.style.color = '#16a34a';
+  const expire = new Date(expireAt).toLocaleDateString('zh-CN');
+  msgEl.textContent = `✅ 兑换成功！${type === 'year' ? '年' : '月'}会员已激活，到期：${expire}`;
+  document.getElementById('activate-input').value = '';
+
+  updateHeaderVip();
+  renderVipPanel();
+  showToast('🎉 会员激活成功！');
+}
+
+// 支付弹窗
+function openPayModal(type) {
+  const modal = document.getElementById('pay-modal');
+  document.getElementById('pay-modal-title').textContent = type === 'year' ? '开通年会员' : '开通月会员';
+  document.getElementById('pay-modal-amount').textContent = type === 'year' ? '¥99' : '¥29.9';
+  document.getElementById('pay-modal-sub').textContent = '扫码支付后，联系客服获取激活码';
+  modal.classList.add('show');
+}
+function closePayModal() {
+  document.getElementById('pay-modal').classList.remove('show');
+}
+// 点遮罩关闭
+document.getElementById('pay-modal').addEventListener('click', function(e) {
+  if (e.target === this) closePayModal();
+});
+
+// 检查使用权限，超出时展示提示
+function checkAndShowLimit(type, limitEl) {
+  if (canUse(type)) return true;
+  if (limitEl) {
+    limitEl.classList.add('show');
+    limitEl.innerHTML = `
+      <p>😅 今日免费次数已用完（${type === 'img' ? '图片1次' : 'AI功能3次'}）</p>
+      <button class="btn btn-primary btn-sm" onclick="switchTab('vip')">👑 开通会员 · 无限使用</button>
+    `;
+  }
+  showToast('今日免费次数已用完，开通会员可无限使用 👑');
+  return false;
+}
+
+async function callDoubao(systemPrompt, userPrompt) {
+  const resp = await fetch(DOUBAO_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${DOUBAO_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: DOUBAO_ENDPOINT,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.9,
+      max_tokens: 1000
+    })
+  });
+  if (!resp.ok) {
+    const err = await resp.text();
+    throw new Error(`API错误 ${resp.status}: ${err}`);
+  }
+  const data = await resp.json();
+  return data.choices[0].message.content.trim();
+}
+
+// ===== Tab 切换 =====
+function switchTab(name) {
+  const tabNames = ['opener','reply','analyze','topics','imggen','vip'];
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', tabNames[i] === name);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'topics') renderTopics();
+  if (name === 'vip') renderVipPanel();
+}
+
+// ===== 标签选择 =====
+document.querySelectorAll('.tag-group').forEach(group => {
+  group.querySelectorAll('.tag').forEach(tag => {
+    tag.onclick = () => {
+      group.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
+      tag.classList.add('selected');
+    };
+  });
+});
+
+function getSelected(groupId) {
+  return document.querySelector(`#${groupId} .tag.selected`)?.dataset.val || '';
+}
+
+// ===== 对话记录 =====
+let chatHistory = [];
+function addMsg(who) {
+  const inp = document.getElementById(who === 'her' ? 'add-her' : 'add-me');
+  const text = inp.value.trim();
+  if (!text) return;
+  chatHistory.push({ who, text });
+  inp.value = '';
+  renderChatLog();
+}
+function renderChatLog() {
+  const log = document.getElementById('chat-log');
+  if (!chatHistory.length) return;
+  log.innerHTML = chatHistory.map(m => `
+    <div class="chat-bubble ${m.who === 'me' ? 'me' : ''}">
+      <div class="bubble-avatar ${m.who === 'her' ? 'her' : 'me-av'}">${m.who === 'her' ? '👩' : '🧑'}</div>
+      <div class="bubble-text">${escHtml(m.text)}</div>
+    </div>
+  `).join('');
+  log.scrollTop = log.scrollHeight;
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ===== 复制到剪贴板 =====
+function copyText(text, el) {
+  navigator.clipboard.writeText(text).then(() => {
+    if (el) {
+      el.classList.add('copied');
+      setTimeout(() => el.classList.remove('copied'), 1500);
+    }
+    showToast('✅ 已复制到剪贴板');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('✅ 已复制');
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function showError(resultEl, msg) {
+  resultEl.innerHTML = `<div style="padding:14px;background:#fff0f0;border-radius:10px;color:#dc2626;font-size:13px">⚠️ ${msg}</div>`;
+  resultEl.classList.add('show');
+}
+
+// ===== 解析AI返回的列表（支持数字/符号分隔）=====
+function parseAIList(text) {
+  // 按换行+序号分割
+  const lines = text.split('\n').map(l => l.replace(/^[\s\d\.\-\*、。]+/, '').trim()).filter(l => l.length > 3);
+  return lines;
+}
+
+// ===== 开场白生成（豆包AI）=====
+async function genOpener() {
+  const profile = document.getElementById('opener-profile').value.trim();
+  const style = getSelected('opener-style') || '幽默轻松';
+  const loading = document.getElementById('opener-loading');
+  const result = document.getElementById('opener-result');
+  const limitHint = document.getElementById('opener-limit');
+
+  if (!profile) { showToast('请先填写她的资料或动态'); return; }
+
+  limitHint.classList.remove('show');
+  if (!checkAndShowLimit('ai', limitHint)) return;
+
+  loading.classList.add('show');
+  result.classList.remove('show');
+
+  const systemPrompt = `你是一个专业的社交聊天顾问，帮助男生在陌陌/探探等交友App上和女生搭话。你擅长根据女生的资料、动态、爱好生成真实自然、有吸引力的开场白。风格要自然，像真实男生说话，不要太油腻，不要套路感太强。`;
+
+  const userPrompt = `请根据以下女生的资料，生成3条"${style}"风格的开场白。
+
+女生资料：
+${profile}
+
+要求：
+1. 每条开场白自然真实，像真人说话
+2. 风格是"${style}"
+3. 针对她的资料做个性化设计，不要太通用
+4. 每条单独一行，前面加序号
+5. 不要加任何解释，只输出3条开场白`;
+
+  try {
+    const text = await callDoubao(systemPrompt, userPrompt);
+    addUsage('ai');
+    updateHeaderVip();
+    const items = parseAIList(text);
+
+    const html = items.map((t, i) => `
+      <div class="result-item" onclick="copyText(${JSON.stringify(t)}, this)">
+        <div class="result-label">方案 ${i + 1} · AI生成</div>
+        <div class="result-text">${escHtml(t)}</div>
+        <div class="copy-hint">👆 点击复制</div>
+      </div>
+    `).join('');
+
+    result.innerHTML = `
+      <div style="font-size:13px;color:var(--text-light);margin-bottom:12px">✨ 豆包AI 生成了 ${items.length} 条开场白 · 点击复制</div>
+      ${html}
+    `;
+    result.classList.add('show');
+  } catch(e) {
+    showError(result, '调用AI失败：' + e.message);
+  } finally {
+    loading.classList.remove('show');
+  }
+}
+
+// ===== 回复推荐（豆包AI）=====
+async function genReply() {
+  const msg = document.getElementById('reply-input').value.trim();
+  if (!msg) { showToast('请先填写她说的话'); return; }
+  const style = getSelected('reply-style') || '幽默';
+  const loading = document.getElementById('reply-loading');
+  const result = document.getElementById('reply-result');
+  const limitHint = document.getElementById('reply-limit');
+
+  limitHint.classList.remove('show');
+  if (!checkAndShowLimit('ai', limitHint)) return;
+
+  loading.classList.add('show');
+  result.classList.remove('show');
+
+  // 构建对话上下文
+  let contextStr = '';
+  if (chatHistory.length > 0) {
+    contextStr = '\n\n之前的对话记录：\n' + chatHistory.map(m => `${m.who === 'her' ? '她' : '我'}：${m.text}`).join('\n');
+  }
+
+  const systemPrompt = `你是一个情感聊天顾问，专门帮助男生在陌陌/探探上和女生聊天建立好感。你了解女性心理，能根据对话情境给出自然、有趣、有温度的回复建议。不要油腻，不要说教，要像一个真实有魅力的男生在说话。`;
+
+  const userPrompt = `场景：在陌陌/探探和一个女生聊天${contextStr}
+
+她最新说的话："${msg}"
+
+请给出3条"${style}"风格的回复建议，要求：
+1. 自然真实，像男生正常说话
+2. 有互动感，引导对方继续聊
+3. 风格是"${style}"
+4. 最后加一行"💡 场景判断："分析一下她这句话反映的态度
+
+格式：
+1. 第一条回复
+2. 第二条回复
+3. 第三条回复
+💡 场景判断：xxx`;
+
+  try {
+    const text = await callDoubao(systemPrompt, userPrompt);
+    addUsage('ai');
+    updateHeaderVip();
+
+    // 分离回复建议和场景判断
+    const tipMatch = text.match(/💡[^\n]*/);
+    const tip = tipMatch ? tipMatch[0] : '';
+    const cleanText = text.replace(/💡[^\n]*/, '');
+    const items = parseAIList(cleanText);
+
+    const html = items.map((t, i) => `
+      <div class="result-item" onclick="copyText(${JSON.stringify(t)}, this)">
+        <div class="result-label">回法 ${i + 1} · AI生成</div>
+        <div class="result-text">${escHtml(t)}</div>
+        <div class="copy-hint">👆 点击复制</div>
+      </div>
+    `).join('');
+
+    result.innerHTML = `
+      ${tip ? `<div style="font-size:13px;color:#555;margin-bottom:10px;padding:10px 12px;background:white;border-radius:8px;line-height:1.6">${escHtml(tip)}</div>` : ''}
+      ${html}
+      <div style="font-size:12px;color:var(--text-light);margin-top:8px;text-align:center">回复后别忘了引导下一个话题 →</div>
+    `;
+    result.classList.add('show');
+  } catch(e) {
+    showError(result, '调用AI失败：' + e.message);
+  } finally {
+    loading.classList.remove('show');
+  }
+}
+
+// ===== 态度分析（豆包AI）=====
+async function analyzeChat() {
+  const chat = document.getElementById('analyze-input').value.trim();
+  if (!chat) { showToast('请先粘贴聊天记录'); return; }
+  const loading = document.getElementById('analyze-loading');
+  const result = document.getElementById('analyze-result');
+  const limitHint = document.getElementById('analyze-limit');
+
+  limitHint.classList.remove('show');
+  if (!checkAndShowLimit('ai', limitHint)) return;
+
+  loading.classList.add('show');
+  result.classList.remove('show');
+
+  const systemPrompt = `你是一位精通女性心理的情感分析专家，能通过聊天记录准确判断女方的态度和好感度。你的分析客观、有依据，建议实用接地气。`;
+
+  const userPrompt = `请分析下面这段聊天记录中女生的态度和好感度：
+
+${chat}
+
+请按以下格式输出：
+【好感度评分】：X分（0-100）
+【态度判断】：一句话描述（如：对你有一定兴趣，在观察阶段）
+【积极信号】：
+- 信号1
+- 信号2
+【注意点】：
+- 注意1
+- 注意2
+【下一步建议】：具体建议，100字以内，告诉他下一步怎么做`;
+
+  try {
+    const text = await callDoubao(systemPrompt, userPrompt);
+    addUsage('ai');
+    updateHeaderVip();
+
+    // 解析评分
+    const scoreMatch = text.match(/好感度评分[】\]：:：\s]*(\d+)/);
+    const score = scoreMatch ? parseInt(scoreMatch[1]) : 50;
+
+    let badgeClass, level;
+    if (score >= 75) { badgeClass = 'score-hot'; level = '好感明显 🔥'; }
+    else if (score >= 55) { badgeClass = 'score-warm'; level = '有点意思 ✨'; }
+    else if (score >= 35) { badgeClass = 'score-cool'; level = '态度平淡 😐'; }
+    else { badgeClass = 'score-cold'; level = '兴趣不大 ❄️'; }
+
+    // 提取各部分
+    const sections = text
+      .replace(/【好感度评分】[^\n]*/,'')
+      .replace(/【态度判断】/g,'<div style="font-size:13px;color:#555;padding:10px 12px;background:white;border-radius:8px;margin:8px 0"><strong>🎯 态度判断：</strong>')
+      .replace(/【积极信号】/g,'</div><div style="font-size:12px;font-weight:700;color:#16a34a;margin:10px 0 6px">✅ 积极信号</div><div>')
+      .replace(/【注意点】/g,'</div><div style="font-size:12px;font-weight:700;color:#dc2626;margin:10px 0 6px">⚠️ 注意点</div><div>')
+      .replace(/【下一步建议】/g,'</div><div style="background:white;border-radius:10px;padding:12px 14px;margin:10px 0;border-left:3px solid var(--pink)"><div style="font-size:12px;font-weight:700;color:var(--pink);margin-bottom:6px">💡 下一步建议</div>')
+      .replace(/^[-•]\s*/gm, '<span style="color:inherit">• </span>')
+      .trim();
+
+    result.innerHTML = `
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:36px;font-weight:800;background:linear-gradient(135deg,var(--pink),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent">${score}</div>
+        <div style="font-size:13px;color:var(--text-light)">好感度评分（满分100）</div>
+        <div class="score-badge ${badgeClass}" style="margin-top:8px">${level}</div>
+      </div>
+      <div class="meter-wrap">
+        <div class="meter-label"><span>冷淡</span><span>热情</span></div>
+        <div class="meter-bar"><div class="meter-fill" id="meter-fill"></div></div>
+      </div>
+      <div style="margin-top:12px;font-size:13px;line-height:1.8">${sections}</div>
+      </div>
+    `;
+    result.classList.add('show');
+
+    setTimeout(() => {
+      const fill = document.getElementById('meter-fill');
+      if (fill) fill.style.width = score + '%';
+    }, 200);
+
+  } catch(e) {
+    showError(result, '调用AI失败：' + e.message);
+  } finally {
+    loading.classList.remove('show');
+  }
+}
+
+// ===== 话题库 =====
+const TOPICS = [
+  {
+    cat: '🎯 破冰 · 刚加上',
+    items: [
+      '你在这个App上一般聊什么类型的人？（打开对方自我描述）',
+      '你平时是主动加别人还是被加比较多？',
+      '你的签名是随手写的还是认真想过的？',
+      '感觉你头像挺特别的，是有什么故事吗？',
+      '你是那种喜欢一直聊天，还是见面之后再深聊的类型？'
+    ]
+  },
+  {
+    cat: '😄 轻松有趣 · 建立氛围',
+    items: [
+      '你觉得自己最可爱的地方是哪里？（直接问，她会觉得好笑）',
+      '你有没有什么别人不知道的小癖好？',
+      '如果你的朋友要用三个词描述你，会是什么？',
+      '你最近有没有做过什么让自己后悔的小事？',
+      '你吃东西是会点外卖、还是更喜欢下馆子？（从日常切入）'
+    ]
+  },
+  {
+    cat: '💫 制造共鸣 · 深化关系',
+    items: [
+      '你有没有那种很喜欢但说出来别人都觉得奇怪的东西？',
+      '你现在最想做但一直没去做的事是什么？',
+      '你觉得什么样的人会让你觉得"这个人很特别"？',
+      '你有没有那种"好想重来"的时刻？',
+      '你怎么判断一个人值不值得深交？'
+    ]
+  },
+  {
+    cat: '🔥 升温 · 提升好感',
+    items: [
+      '你上次被人说好看是什么时候？（然后自然夸她）',
+      '你喜欢被人怎么对你？（引导她说出需求）',
+      '你有没有那种"见一面就很熟"的人？（暗示可以见面）',
+      '你觉得喝咖啡还是喝奶茶的人，哪种性格更有趣？（铺垫约见面）',
+      '如果我们在一个城市，你会去哪里打发周末？'
+    ]
+  },
+  {
+    cat: '🌙 晚上 · 拉近距离',
+    items: [
+      '你睡前一般干嘛？（建立睡前聊天习惯）',
+      '你失眠的时候会做什么？',
+      '今天最让你高兴/烦的一件事是什么？',
+      '你有没有那种半夜突然很想见的人？',
+      '你习惯主动说晚安，还是等别人先说？'
+    ]
+  },
+  {
+    cat: '📅 约出来 · 见面铺垫',
+    items: [
+      '你最近有没有想去但一直没去的地方？',
+      '你喜欢什么类型的咖啡馆 / 餐厅？',
+      '你觉得第一次见网友，在哪种地方比较舒服？',
+      '我下周末有空，你一般周末怎么过？',
+      '如果要带一个新认识的朋友逛你的城市，你会去哪？'
+    ]
+  }
+];
+
+let topicsRendered = false;
+function renderTopics() {
+  if (topicsRendered) return;
+  topicsRendered = true;
+  const container = document.getElementById('topic-list');
+  container.innerHTML = TOPICS.map((cat, ci) => `
+    <div class="topic-category">
+      <div class="topic-cat-header" onclick="toggleCat(${ci})">
+        <span>${cat.cat}</span>
+        <span id="arrow-${ci}">▼</span>
+      </div>
+      <div class="topic-list" id="cat-${ci}">
+        ${cat.items.map(item => `
+          <div class="topic-item" onclick="copyText(${JSON.stringify(item)}, this)">
+            ${escHtml(item)}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  
+  // 默认展开第一个
+  toggleCat(0);
+}
+
+function toggleCat(i) {
+  const list = document.getElementById('cat-' + i);
+  const arrow = document.getElementById('arrow-' + i);
+  const isOpen = list.classList.contains('open');
+  list.classList.toggle('open', !isOpen);
+  arrow.textContent = isOpen ? '▼' : '▲';
+}
+
+// ===== 图片生成（豆包 Seedream）=====
+async function genImage() {
+  const gender = getSelected('img-gender') || '男生';
+  const age = getSelected('img-age') || '25-30岁';
+  const body = document.getElementById('img-body').value.trim() || '178cm，70kg';
+  const style = getSelected('img-style') || '休闲';
+  const scene = getSelected('img-scene') || '户外公园';
+  const extra = document.getElementById('img-extra').value.trim();
+
+  const loading = document.getElementById('img-loading');
+  const result = document.getElementById('img-result');
+  const btn = document.getElementById('img-btn');
+  const limitHint = document.getElementById('img-limit');
+
+  limitHint.classList.remove('show');
+  if (!checkAndShowLimit('img', limitHint)) return;
+
+  loading.classList.add('show');
+  result.classList.remove('show');
+  btn.disabled = true;
+
+  // 构建提示词
+  const prompt = `一个${age}的中国${gender}，${body}，体型匀称，穿着${style}风格的衣服，在${scene}，自然放松的姿态，自然光，写实摄影风格，高清，背景虚化${extra ? '，' + extra : ''}`;
+
+  try {
+    const resp = await fetch(DOUBAO_IMG_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${DOUBAO_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: DOUBAO_IMG_ENDPOINT,
+        prompt: prompt,
+        size: '2048x2048',
+        n: 1
+      })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.text();
+      throw new Error(`API错误 ${resp.status}: ${err}`);
+    }
+
+    const data = await resp.json();
+    const imgUrl = data.data?.[0]?.url || data.data?.[0]?.b64_json;
+
+    if (!imgUrl) throw new Error('未获取到图片数据');
+
+    addUsage('img');
+    updateHeaderVip();
+
+    const isBase64 = !imgUrl.startsWith('http');
+    const imgSrc = isBase64 ? `data:image/png;base64,${imgUrl}` : imgUrl;
+
+    result.innerHTML = `
+      <div style="text-align:center">
+        <img src="${imgSrc}" style="width:100%;max-width:400px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.15)" alt="生成的照片">
+        <div style="margin-top:12px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <a href="${imgSrc}" download="photo.png" class="btn btn-primary btn-sm">⬇️ 下载图片</a>
+          <button class="btn btn-secondary btn-sm" onclick="genImage()">🔄 重新生成</button>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:var(--text-light)">提示词：${escHtml(prompt)}</div>
+      </div>
+    `;
+    result.classList.add('show');
+  } catch(e) {
+    showError(result, '生成失败：' + e.message);
+  } finally {
+    loading.classList.remove('show');
+    btn.disabled = false;
+  }
+}
+
+// 初始化
+renderTopics();
+updateHeaderVip();
+</script>
+</body>
+</html>
