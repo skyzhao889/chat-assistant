@@ -1372,23 +1372,62 @@ function escHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// ===== 复制到剪贴板 =====
+// ===== 复制到剪贴板（兼容各种浏览器）=====
 function copyText(text, el) {
-  navigator.clipboard.writeText(text).then(() => {
-    if (el) {
-      el.classList.add('copied');
-      setTimeout(() => el.classList.remove('copied'), 1500);
+  // 方法1：Clipboard API（现代浏览器）
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => {
+      onCopySuccess(el);
+    }).catch(() => {
+      fallbackCopy(text, el);
+    });
+  } else {
+    fallbackCopy(text, el);
+  }
+}
+function fallbackCopy(text, el) {
+  // 方法2：创建临时input+select（兼容微信/陌陌等内置浏览器）
+  try {
+    const inp = document.createElement('input');
+    inp.setAttribute('readonly', 'readonly');
+    inp.setAttribute('value', text);
+    inp.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0';
+    document.body.appendChild(inp);
+    inp.select();
+    inp.setSelectionRange(0, text.length);
+    const ok = document.execCommand('copy');
+    document.body.removeChild(inp);
+    if (ok) {
+      onCopySuccess(el);
+    } else {
+      // 方法3：弹出手动复制提示
+      showCopyFallback(text, el);
     }
-    showToast('✅ 已复制到剪贴板');
-  }).catch(() => {
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('✅ 已复制');
-  });
+  } catch(e) {
+    showCopyFallback(text, el);
+  }
+}
+function showCopyFallback(text, el) {
+  // 最终兜底：弹窗让用户手动长按复制
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.innerHTML = `
+    <div style="background:white;border-radius:16px;padding:24px 20px;width:100%;max-width:340px;position:relative">
+      <button onclick="this.closest('div[style]').parentElement.remove()" style="position:absolute;top:10px;right:14px;font-size:20px;cursor:pointer;background:none;border:none;color:#999">✕</button>
+      <div style="font-size:16px;font-weight:700;margin-bottom:12px">📋 请手动复制</div>
+      <div style="font-size:13px;color:#888;margin-bottom:12px">长按以下文字，选择「复制」</div>
+      <div id="manual-copy-text" style="background:#f5f5f5;border-radius:10px;padding:14px;font-size:14px;line-height:1.7;word-break:break-all;user-select:text;-webkit-user-select:text">${text}</div>
+    </div>
+  `;
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+function onCopySuccess(el) {
+  if (el) {
+    el.classList.add('copied');
+    setTimeout(() => el.classList.remove('copied'), 1500);
+  }
+  showToast('✅ 已复制到剪贴板');
 }
 
 function showToast(msg) {
