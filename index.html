@@ -696,7 +696,7 @@
   <div class="header-icon">💌</div>
   <div>
     <h1>撩妹助手</h1>
-    <p>陌陌/探探 · 豆包AI驱动 ✨</p>
+    <p>陌陌/探探 · AI智能驱动 ✨</p>
   </div>
   <div id="header-vip" onclick="switchTab('vip')" style="margin-left:auto;cursor:pointer"></div>
 </div>
@@ -749,7 +749,7 @@
 
     <div class="loading" id="opener-loading">
       <div class="loading-dots"><span></span><span></span><span></span></div>
-      <div style="margin-top:8px;font-size:13px;">豆包AI生成中...</div>
+      <div style="margin-top:8px;font-size:13px;">AI生成中...</div>
     </div>
 
     <div class="limit-hint" id="opener-limit"></div>
@@ -788,7 +788,7 @@
 
     <div class="loading" id="reply-loading">
       <div class="loading-dots"><span></span><span></span><span></span></div>
-      <div style="margin-top:8px;font-size:13px;">豆包AI分析中...</div>
+      <div style="margin-top:8px;font-size:13px;">AI分析中...</div>
     </div>
 
     <div class="limit-hint" id="reply-limit"></div>
@@ -813,7 +813,7 @@
 
     <div class="loading" id="analyze-loading">
       <div class="loading-dots"><span></span><span></span><span></span></div>
-      <div style="margin-top:8px;font-size:13px;">豆包AI深度分析中...</div>
+      <div style="margin-top:8px;font-size:13px;">AI深度分析中...</div>
     </div>
 
     <div class="limit-hint" id="analyze-limit"></div>
@@ -889,7 +889,7 @@
 
     <div class="loading" id="img-loading">
       <div class="loading-dots"><span></span><span></span><span></span></div>
-      <div style="margin-top:8px;font-size:13px;">豆包AI生成中，约需15-30秒...</div>
+      <div style="margin-top:8px;font-size:13px;">AI生成中，约需15-30秒...</div>
     </div>
 
     <div class="limit-hint" id="img-limit"></div>
@@ -1086,7 +1086,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ===== 豆包 API 配置 =====
+// ===== API 配置 =====
 const DOUBAO_API_KEY = '2c7f6056-18c6-48a8-acc1-b7c689de651a';
 const DOUBAO_ENDPOINT = 'ep-20260327152443-fzqc7';       // 文字对话模型
 const DOUBAO_IMG_ENDPOINT = 'ep-20260327141400-szl8q';   // 图片生成模型
@@ -1410,7 +1410,7 @@ function parseAIList(text) {
   return lines;
 }
 
-// ===== 开场白生成（豆包AI）=====
+// ===== 开场白生成 =====
 async function genOpener() {
   const profile = document.getElementById('opener-profile').value.trim();
   const style = getSelected('opener-style') || '幽默轻松';
@@ -1455,7 +1455,7 @@ ${profile}
     `).join('');
 
     result.innerHTML = `
-      <div style="font-size:13px;color:var(--text-light);margin-bottom:12px">✨ 豆包AI 生成了 ${items.length} 条开场白 · 点击复制</div>
+      <div style="font-size:13px;color:var(--text-light);margin-bottom:12px">✨ AI 生成了 ${items.length} 条开场白 · 点击复制</div>
       ${html}
     `;
     result.classList.add('show');
@@ -1466,7 +1466,7 @@ ${profile}
   }
 }
 
-// ===== 回复推荐（豆包AI）=====
+// ===== 回复推荐 =====
 async function genReply() {
   const msg = document.getElementById('reply-input').value.trim();
   if (!msg) { showToast('请先填写她说的话'); return; }
@@ -1537,7 +1537,7 @@ async function genReply() {
   }
 }
 
-// ===== 态度分析（豆包AI）=====
+// ===== 态度分析 =====
 async function analyzeChat() {
   const chat = document.getElementById('analyze-input').value.trim();
   if (!chat) { showToast('请先粘贴聊天记录'); return; }
@@ -1717,7 +1717,7 @@ function toggleCat(i) {
   arrow.textContent = isOpen ? '▼' : '▲';
 }
 
-// ===== 图片生成（豆包 Seedream）=====
+// ===== 图片生成 =====
 async function genImage() {
   const gender = getSelected('img-gender') || '男生';
   const age = getSelected('img-age') || '25-30岁';
