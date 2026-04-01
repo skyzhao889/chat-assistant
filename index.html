@@ -573,6 +573,121 @@
   }
   .limit-hint.show { display: block; }
   .limit-hint p { font-size: 13px; color: #444; margin-bottom: 10px; }
+
+  /* 客服弹窗 */
+  .kefu-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 28px 24px;
+    width: 90%;
+    max-width: 360px;
+    position: relative;
+    animation: modalIn 0.25s ease;
+    text-align: center;
+  }
+  .kefu-title {
+    font-size: 20px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  .kefu-subtitle {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  .kefu-qr-box {
+    background: linear-gradient(135deg, #f3e8ff, #fce7f3);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .kefu-qr-box img {
+    width: 180px;
+    height: 180px;
+    border-radius: 12px;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto 12px;
+    background: white;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  }
+  .kefu-steps {
+    text-align: left;
+    font-size: 13px;
+    color: #555;
+    line-height: 2;
+    margin-bottom: 16px;
+    padding: 0 4px;
+  }
+  .kefu-steps li {
+    list-style: none;
+    position: relative;
+    padding-left: 28px;
+  }
+  .kefu-steps li::before {
+    content: attr(data-step);
+    position: absolute;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 2px;
+  }
+
+  /* 悬浮客服按钮 */
+  .kefu-float {
+    position: fixed;
+    bottom: 24px;
+    right: 20px;
+    width: 54px;
+    height: 54px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 16px rgba(255,107,157,0.45);
+    cursor: pointer;
+    z-index: 500;
+    transition: all 0.25s;
+    animation: kefuPulse 2s infinite;
+  }
+  .kefu-float:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 24px rgba(255,107,157,0.55);
+  }
+  .kefu-float .kefu-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: #dc2626;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+  }
+  @keyframes kefuPulse {
+    0%, 100% { box-shadow: 0 4px 16px rgba(255,107,157,0.45); }
+    50% { box-shadow: 0 4px 24px rgba(255,107,157,0.7); }
+  }
 </style>
 </head>
 <body>
@@ -925,9 +1040,47 @@
 
     <div style="display:flex;gap:8px">
       <button class="btn btn-secondary" style="flex:1" onclick="closePayModal()">取消</button>
-      <button class="btn btn-primary" style="flex:1" onclick="closePayModal();switchTab('vip');document.getElementById('activate-input').focus()">已付款 → 输入激活码</button>
+      <button class="btn btn-primary" style="flex:1" onclick="closePayModal();openKefu()">付完款 → 联系客服</button>
     </div>
   </div>
+</div>
+
+<!-- ===== 客服联系弹窗 ===== -->
+<div class="modal-overlay" id="kefu-modal">
+  <div class="kefu-modal">
+    <button class="modal-close" onclick="closeKefu()">✕</button>
+    <div class="kefu-title">💬 联系客服</div>
+    <div class="kefu-subtitle">付款后截图发给客服，即可快速获得激活码</div>
+
+    <div class="kefu-qr-box">
+      <img src="kefu-qrcode.png" alt="客服微信二维码"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+      >
+      <div style="display:none;width:180px;height:180px;border-radius:12px;background:#f5f5f5;margin:0 auto 12px;align-items:center;justify-content:center;font-size:13px;color:#999;flex-direction:column;gap:6px">
+        <span style="font-size:32px">📱</span>
+        <span>二维码加载失败</span>
+      </div>
+      <div style="font-size:14px;font-weight:600;color:#444">👆 长按识别添加微信</div>
+      <div style="font-size:12px;color:var(--text-light);margin-top:4px">客服在线时间：9:00 - 23:00</div>
+    </div>
+
+    <div class="kefu-steps">
+      <ol>
+        <li data-step="1">选择套餐 → 扫码支付</li>
+        <li data-step="2">付款后截图发给客服</li>
+        <li data-step="3">客服核实后发送激活码</li>
+        <li data-step="4">回到「会员」页面输入激活码</li>
+      </ol>
+    </div>
+
+    <button class="btn btn-primary" style="width:100%" onclick="closeKefu()">我知道了</button>
+  </div>
+</div>
+
+<!-- 悬浮客服按钮 -->
+<div class="kefu-float" onclick="openKefu()">
+  💬
+  <div class="kefu-badge">!</div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1641,6 +1794,18 @@ async function genImage() {
 // 初始化
 renderTopics();
 updateHeaderVip();
+
+// ===== 客服弹窗 =====
+function openKefu() {
+  document.getElementById('kefu-modal').classList.add('show');
+}
+function closeKefu() {
+  document.getElementById('kefu-modal').classList.remove('show');
+}
+// 点遮罩关闭
+document.getElementById('kefu-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeKefu();
+});
 </script>
 </body>
 </html>
