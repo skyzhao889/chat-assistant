@@ -688,6 +688,53 @@
     0%, 100% { box-shadow: 0 4px 16px rgba(255,107,157,0.45); }
     50% { box-shadow: 0 4px 24px rgba(255,107,157,0.7); }
   }
+
+  /* 复制确认弹窗 */
+  .copy-confirm-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 1001;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .copy-confirm-overlay.show { display: flex; }
+  .copy-confirm-box {
+    background: white;
+    border-radius: 18px;
+    padding: 24px 22px 20px;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+    animation: modalIn 0.2s ease;
+  }
+  .copy-confirm-box .cc-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .copy-confirm-box .cc-text {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #444;
+    text-align: left;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 18px;
+    word-break: break-all;
+    border: 1px solid var(--border);
+  }
+  .copy-confirm-box .cc-btns {
+    display: flex;
+    gap: 10px;
+  }
+  .copy-confirm-box .cc-btns .btn { flex: 1; justify-content: center; }
 </style>
 </head>
 <body>
@@ -1083,6 +1130,18 @@
   <div class="kefu-badge">!</div>
 </div>
 
+<!-- 复制确认弹窗 -->
+<div class="copy-confirm-overlay" id="copy-confirm">
+  <div class="copy-confirm-box">
+    <div class="cc-title">📋 复制这段话术？</div>
+    <div class="cc-text" id="copy-confirm-text"></div>
+    <div class="cc-btns">
+      <button class="btn btn-secondary" onclick="cancelCopy()">取消</button>
+      <button class="btn btn-primary" onclick="confirmCopy()">确定复制</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1372,21 +1431,44 @@ function escHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// ===== 复制到剪贴板（兼容各种浏览器）=====
+// ===== 复制到剪贴板（点击确认后复制）=====
+let _pendingCopyText = '';
+let _pendingCopyEl = null;
+
 function copyText(text, el) {
-  // 方法1：Clipboard API（现代浏览器）
+  _pendingCopyText = text;
+  _pendingCopyEl = el;
+  document.getElementById('copy-confirm-text').textContent = text;
+  document.getElementById('copy-confirm').classList.add('show');
+}
+
+function cancelCopy() {
+  _pendingCopyText = '';
+  _pendingCopyEl = null;
+  document.getElementById('copy-confirm').classList.remove('show');
+}
+
+function confirmCopy() {
+  document.getElementById('copy-confirm').classList.remove('show');
+  const text = _pendingCopyText;
+  const el = _pendingCopyEl;
+  _pendingCopyText = '';
+  _pendingCopyEl = null;
+
+  // 方法1：Clipboard API
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(text).then(() => {
       onCopySuccess(el);
     }).catch(() => {
-      fallbackCopy(text, el);
+      doFallbackCopy(text, el);
     });
   } else {
-    fallbackCopy(text, el);
+    doFallbackCopy(text, el);
   }
 }
-function fallbackCopy(text, el) {
-  // 方法2：创建临时input+select（兼容微信/陌陌等内置浏览器）
+
+function doFallbackCopy(text, el) {
+  // 方法2：临时input+select（兼容微信/陌陌）
   try {
     const inp = document.createElement('input');
     inp.setAttribute('readonly', 'readonly');
@@ -1401,14 +1483,14 @@ function fallbackCopy(text, el) {
       onCopySuccess(el);
     } else {
       // 方法3：弹出手动复制提示
-      showCopyFallback(text, el);
+      showManualCopy(text);
     }
   } catch(e) {
-    showCopyFallback(text, el);
+    showManualCopy(text);
   }
 }
-function showCopyFallback(text, el) {
-  // 最终兜底：弹窗让用户手动长按复制
+
+function showManualCopy(text) {
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
   overlay.innerHTML = `
@@ -1416,12 +1498,13 @@ function showCopyFallback(text, el) {
       <button onclick="this.closest('div[style]').parentElement.remove()" style="position:absolute;top:10px;right:14px;font-size:20px;cursor:pointer;background:none;border:none;color:#999">✕</button>
       <div style="font-size:16px;font-weight:700;margin-bottom:12px">📋 请手动复制</div>
       <div style="font-size:13px;color:#888;margin-bottom:12px">长按以下文字，选择「复制」</div>
-      <div id="manual-copy-text" style="background:#f5f5f5;border-radius:10px;padding:14px;font-size:14px;line-height:1.7;word-break:break-all;user-select:text;-webkit-user-select:text">${text}</div>
+      <div style="background:#f5f5f5;border-radius:10px;padding:14px;font-size:14px;line-height:1.7;word-break:break-all;user-select:text;-webkit-user-select:text">${text}</div>
     </div>
   `;
   overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
   document.body.appendChild(overlay);
 }
+
 function onCopySuccess(el) {
   if (el) {
     el.classList.add('copied');
@@ -1489,12 +1572,12 @@ ${profile}
       <div class="result-item" onclick="copyText(${JSON.stringify(t)}, this)">
         <div class="result-label">方案 ${i + 1} · AI生成</div>
         <div class="result-text">${escHtml(t)}</div>
-        <div class="copy-hint">👆 点击复制</div>
+        <div class="copy-hint">👆 点击复制话术</div>
       </div>
     `).join('');
 
     result.innerHTML = `
-      <div style="font-size:13px;color:var(--text-light);margin-bottom:12px">✨ AI 生成了 ${items.length} 条开场白 · 点击复制</div>
+      <div style="font-size:13px;color:var(--text-light);margin-bottom:12px">✨ AI 生成了 ${items.length} 条开场白 · 点击即可复制</div>
       ${html}
     `;
     result.classList.add('show');
@@ -1559,7 +1642,7 @@ async function genReply() {
       <div class="result-item" onclick="copyText(${JSON.stringify(t)}, this)">
         <div class="result-label">回法 ${i + 1} · AI生成</div>
         <div class="result-text">${escHtml(t)}</div>
-        <div class="copy-hint">👆 点击复制</div>
+        <div class="copy-hint">👆 点击复制话术</div>
       </div>
     `).join('');
 
@@ -1844,6 +1927,11 @@ function closeKefu() {
 // 点遮罩关闭
 document.getElementById('kefu-modal').addEventListener('click', function(e) {
   if (e.target === this) closeKefu();
+});
+
+// 复制确认弹窗点遮罩关闭
+document.getElementById('copy-confirm').addEventListener('click', function(e) {
+  if (e.target === this) cancelCopy();
 });
 </script>
 </body>
